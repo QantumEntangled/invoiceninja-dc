@@ -3,39 +3,49 @@ version: "2"
 services:
   db:
     image: mysql:5
-    env_file: .env
-    restart: always
+    restart: unless-stopped
+    networks:
+      - net
     volumes:
-      - data-volume:/var/lib/mysql
+      - ./data/db:/var/lib/mysql
+    env_file: .env
 
   app:
     image: invoiceninja/invoiceninja
+    restart: unless-stopped
+    networks:
+      - net
     links:
       - db:mysql
     env_file: .env
-    restart: always
     volumes:
-      - ./srv/invoiceninja/storage:/var/www/app/storage:rw
-      - ./srv/invoiceninja/logo:/var/www/app/public/logo:rw
+      - ./data/invoiceninja-storage:/var/www/app/storage:rw
+      - ./data/invoiceninja-logo:/var/www/app/public/logo:rw
 
   web:
     image: nginx:1
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: unless-stopped
+    networks:
+      - net
+    ports:
+      - 8000:80
     links:
       - app
     volumes_from:
       - app
-    ports:
-      - 8000:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
 
   cron:
     image: invoiceninja/invoiceninja
+    #restart: unless-stopped
+    networks:
+      - net
     links:
       - db:mysql
-    env_file: .env
     volumes_from:
       - app
+    env_file: .env
     entrypoint: |
       bash -c 'bash -s <<EOF
       trap "break;exit" SIGHUP SIGINT SIGTERM
@@ -47,6 +57,8 @@ services:
       done
       EOF'
 
-volumes:
-  data-volume:
+networks:
+  net:
       
+volumes:
+  data-vol:
