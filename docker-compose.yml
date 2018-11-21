@@ -59,6 +59,3 @@ services:
 
 networks:
   net:
-      
-volumes:
-  data-vol:
