@@ -1,39 +1,23 @@
-DockerFile for invoice ninja (https://www.invoiceninja.com/)
+Docker-Compose Configuration for invoice ninja (https://www.invoiceninja.com/)
 
 This image is based on `php:7.0-fpm` official version.
 
-To make your data persistent, you have to mount `/var/www/app/public/logo` and `/var/www/app/storage`.
+Your data is persistently stored in `./data/invoiceninja-storage` and `./data/invoiceninja-logo`.
 
 
 ### Usage
 
 To run it:
 
+```Bash
+cp ./.env.example ./.env
+nano ./.env
+# Edit variables to match your environment
+docker-compose up -d
+# Wait >30 seconds while the database initializes and the cron scheduler starts, then open https://localhost:8000 in a browser
 ```
-docker run -d \
-  -e APP_ENV='production' \
-  -e APP_DEBUG=0 \
-  -e APP_URL='http://ninja.dev' \
-  -e APP_KEY='SomeRandomStringSomeRandomString' \
-  -e APP_CIPHER='AES-256-CBC' \
-  -e DB_TYPE='mysql' \
-  -e DB_STRICT='false' \
-  -e DB_HOST='localhost' \
-  -e DB_DATABASE='ninja' \
-  -e DB_USERNAME='ninja' \
-  -e DB_PASSWORD='ninja' \
-  -p '80:80' \
-  invoiceninja/invoiceninja
-```
+
 A list of environment variables can be found [here](https://github.com/invoiceninja/invoiceninja/blob/master/.env.example)
-
-
-### With docker-compose
-
-A pretty ready to use docker-compose configuration can be found into [`./docker-compose`](https://github.com/invoiceninja/dockerfiles/tree/master/docker-compose).
-Rename `.env.example` into `.env` and change the environment's variable as needed.
-The file assume that all your persistent data is mounted from `/srv/invoiceninja/`.
-Once started the application should be accessible at http://localhost:8000/
 
 ### Know issue
 
